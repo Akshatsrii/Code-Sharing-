@@ -142,7 +142,8 @@ NoteCode was born out of one frustration — **sharing code in chats, emails, an
 | 👨‍💻 **Developers** | Share code in PRs, Slack, Discord, Stack Overflow answers |
 | 🎓 **Students** | Submit homework, share solutions, ask for help |
 | 👩‍🏫 **Teachers** | Create example snippets for students to fork and modify |
-| 🧑‍💼 **Interview Candidates** | Live code in interviews with the interviewer watching in real time 
+| 🧑‍💼 **Interview Candidates** | Live code in interviews with the interviewer watching in real time |
+| ✍️ **Technical Writers** | Embed live, editable code examples in blog posts |
 
 ---
 
@@ -469,7 +470,7 @@ sequenceDiagram
     participant G as 🔀 API Gateway
     participant C as ⚡ Redis Cache
     participant S as 🔧 Node.js Server
-  
+    participant D as 🗄️ MongoDB
 
     Note over U,D: Creating a Snippet
 
@@ -1285,9 +1286,7 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for the full tex
 - [Shields.io](https://shields.io/) — Beautiful README badges
 
 ---
-</div>
 
----
 
 <div align="center">
 
