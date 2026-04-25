@@ -166,8 +166,6 @@ NoteCode uses **Microsoft Monaco Editor** — the same editor that powers VS Cod
 - **Word Wrap** — Toggle with `Alt+Z`
 - **Line Numbers** — Always visible, relative mode optional
 - **Error Squiggles** — Real-time error detection for JS/TS
-- **Format Document** — `Shift+Alt+F` to auto-format code
-
 </details>
 
 ### 🎨 Themes & Customization
