@@ -12,7 +12,6 @@
 
 <br/><br/>
 
-<img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" />
 <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Deployed_on-Vercel-black?style=for-the-badge&logo=vercel" />
 <img src="https://img.shields.io/badge/Status-Active_Development-success?style=for-the-badge" />
