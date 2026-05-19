@@ -38,6 +38,15 @@
 </div>
 
 ---
+## 🌐 Live Deployment
+
+### Frontend
+🔗 https://code-sharing-ei9a.vercel.app
+
+### Backend API
+⚡ https://code-sharing-2.onrender.com
+
+---
 
 ## 📚 Table of Contents
 
