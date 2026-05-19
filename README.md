@@ -33,7 +33,7 @@
 
 <br/>
 
-**[🌐 Live Demo](https://notecode.app)** &nbsp;·&nbsp; **[📖 Documentation](https://notecode.app/docs)** &nbsp;·&nbsp; **[🐛 Report Bug](https://github.com/yourusername/notecode/issues/new?template=bug_report.md)** &nbsp;·&nbsp; **[✨ Feature Request](https://github.com/yourusername/notecode/issues/new?template=feature_request.md)** &nbsp;·&nbsp; **[💬 Discussions](https://github.com/yourusername/notecode/discussions)**
+**[🌐 Live Demo](https://code-sharing-ei9a.vercel.app)** &nbsp;·&nbsp; **[📖 Documentation](https://github.com/Akshatsrii/Code-Sharing)** &nbsp;·&nbsp; **[🐛 Report Bug](https://github.com/yourusername/notecode/issues/new?template=bug_report.md)** &nbsp;·&nbsp; **[✨ Feature Request](https://github.com/yourusername/notecode/issues/new?template=feature_request.md)** &nbsp;·&nbsp; **[💬 Discussions](https://github.com/yourusername/notecode/discussions)**
 
 </div>
 
@@ -42,9 +42,6 @@
 
 ### Frontend
 🔗 https://code-sharing-ei9a.vercel.app
-
-### Backend API
-⚡ https://code-sharing-2.onrender.com
 
 ---
 
