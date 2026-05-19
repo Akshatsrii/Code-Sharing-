@@ -40,7 +40,6 @@
 ---
 ## 🌐 Live Deployment
 
-### Frontend
 🔗 https://code-sharing-ei9a.vercel.app
 
 ---
