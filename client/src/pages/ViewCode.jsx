@@ -1,22 +1,40 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import {
+  Code,
+  Terminal,
+  Paintbrush,
+  ArrowLeft,
+  ExternalLink
+} from "lucide-react";
+
 import Navbar from "../components/Navbar";
-import { Code, Terminal, Paintbrush } from "lucide-react";
+import { useEditorStore } from "../store/useEditorStore";
 
 const ViewCode = () => {
   const { id } = useParams();
+  const { theme } = useEditorStore();
+
   const [codeData, setCodeData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const isDark = theme === "vs-dark";
 
   useEffect(() => {
     const fetchCode = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/code/${id}`);
-        if (!res.ok) throw new Error("Not found");
-        const data = await res.json();
+        const response = await fetch(
+          `http://localhost:5000/api/code/${id}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Snippet not found");
+        }
+
+        const data = await response.json();
         setCodeData(data);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -25,42 +43,44 @@ const ViewCode = () => {
     fetchCode();
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!codeData) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-          <div className="text-red-500 text-6xl">❌</div>
-          <h2 className="text-2xl font-bold">Snippet Not Found</h2>
-          <Link to="/gallery" className="glass-button px-6 py-2 rounded-lg font-medium">
-            Go to Gallery
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const renderCodeBlock = (title, codeString, icon) => {
+  const renderCodeBlock = (
+    title,
+    codeString,
+    icon
+  ) => {
     if (!codeString) return null;
+
     return (
-      <div className="glass-panel overflow-hidden mb-6">
-        <div className="flex items-center gap-2 px-4 py-3 bg-secondary/30 border-b border-glassBorder">
+      <div
+        className={`rounded-2xl overflow-hidden border shadow-lg ${
+          isDark
+            ? "bg-zinc-900 border-orange-500/20"
+            : "bg-white border-orange-200"
+        }`}
+      >
+        {/* Header */}
+        <div
+          className={`flex items-center gap-3 px-5 py-4 border-b ${
+            isDark
+              ? "bg-black border-orange-500/20"
+              : "bg-orange-50 border-orange-200"
+          }`}
+        >
           {icon}
-          <h3 className="font-medium text-white">{title}</h3>
+          <h3 className="font-semibold">
+            {title}
+          </h3>
         </div>
-        <div className="p-4 bg-black/40 overflow-x-auto">
-          <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap">
+
+        {/* Code */}
+        <div
+          className={`p-5 overflow-x-auto ${
+            isDark
+              ? "bg-black text-green-400"
+              : "bg-gray-50 text-black"
+          }`}
+        >
+          <pre className="text-sm font-mono whitespace-pre-wrap">
             {codeString}
           </pre>
         </div>
@@ -68,36 +88,158 @@ const ViewCode = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navbar />
-      
-      <div className="max-w-5xl mx-auto w-full p-6 md:p-8 flex-1">
-        
-        <div className="glass-panel p-6 mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent mb-2">
-              {codeData.title || "Shared Workspace"}
-            </h1>
-            <p className="text-mutedForeground text-sm">
-              By <span className="text-white font-medium">{codeData.author || "Anonymous"}</span> • {new Date(codeData.createdAt).toLocaleDateString()}
-            </p>
+  // Loading State
+  if (loading) {
+    return (
+      <div
+        className={`min-h-screen ${
+          isDark
+            ? "bg-black text-white"
+            : "bg-white text-black"
+        }`}
+      >
+        <Navbar />
+
+        <div className="flex justify-center items-center h-[80vh]">
+          <div className="w-12 h-12 border-4 border-orange-300 border-t-orange-500 rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State
+  if (!codeData) {
+    return (
+      <div
+        className={`min-h-screen ${
+          isDark
+            ? "bg-black text-white"
+            : "bg-white text-black"
+        }`}
+      >
+        <Navbar />
+
+        <div className="flex flex-col items-center justify-center h-[80vh]">
+          <div className="text-6xl mb-4">
+            ❌
           </div>
-          <Link to={`/s/${id}`} className="glass-button px-6 py-2 rounded-lg font-medium text-white bg-primary/20">
-            Open in Editor
+
+          <h2 className="text-2xl font-bold mb-3">
+            Snippet Not Found
+          </h2>
+
+          <Link
+            to="/gallery"
+            className="px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition"
+          >
+            Back to Gallery
           </Link>
         </div>
+      </div>
+    );
+  }
 
-        {typeof codeData.code === "object" ? (
+  return (
+    <div
+      className={`min-h-screen ${
+        isDark
+          ? "bg-black text-white"
+          : "bg-white text-black"
+      }`}
+    >
+      <Navbar />
+
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        {/* Header Card */}
+        <div
+          className={`rounded-2xl border p-6 mb-8 shadow-lg flex flex-col md:flex-row justify-between gap-5 ${
+            isDark
+              ? "bg-zinc-900 border-orange-500/20"
+              : "bg-white border-orange-200"
+          }`}
+        >
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              {codeData.title ||
+                "Shared Workspace"}
+            </h1>
+
+            <p className="text-orange-500 text-sm">
+              By{" "}
+              {codeData.author ||
+                "Anonymous"}{" "}
+              •{" "}
+              {new Date(
+                codeData.createdAt
+              ).toLocaleDateString()}
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <Link
+              to="/gallery"
+              className={`px-5 py-3 rounded-xl border flex items-center gap-2 ${
+                isDark
+                  ? "border-orange-500/20"
+                  : "border-orange-200"
+              }`}
+            >
+              <ArrowLeft size={16} />
+              Back
+            </Link>
+
+            <Link
+              to={`/s/${id}`}
+              className="px-5 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 flex items-center gap-2"
+            >
+              <ExternalLink size={16} />
+              Open Editor
+            </Link>
+          </div>
+        </div>
+
+        {/* Code Blocks */}
+        {typeof codeData.code ===
+        "object" ? (
           <div className="space-y-6">
-            {renderCodeBlock("HTML", codeData.code.html, <Code size={18} className="text-orange-400" />)}
-            {renderCodeBlock("CSS", codeData.code.css, <Paintbrush size={18} className="text-blue-400" />)}
-            {renderCodeBlock("JavaScript", codeData.code.js, <Terminal size={18} className="text-yellow-400" />)}
+            {renderCodeBlock(
+              "HTML",
+              codeData.code.html,
+              <Code
+                size={18}
+                className="text-orange-500"
+              />
+            )}
+
+            {renderCodeBlock(
+              "CSS",
+              codeData.code.css,
+              <Paintbrush
+                size={18}
+                className="text-blue-500"
+              />
+            )}
+
+            {renderCodeBlock(
+              "JavaScript",
+              codeData.code.javascript ||
+                codeData.code.js,
+              <Terminal
+                size={18}
+                className="text-yellow-500"
+              />
+            )}
           </div>
         ) : (
-          renderCodeBlock("Code", codeData.code, <Terminal size={18} className="text-primary" />)
+          renderCodeBlock(
+            "Code",
+            codeData.code,
+            <Terminal
+              size={18}
+              className="text-orange-500"
+            />
+          )
         )}
-
       </div>
     </div>
   );

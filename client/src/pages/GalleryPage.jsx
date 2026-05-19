@@ -1,17 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import { Star, GitFork, User, Search, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useMemo } from "react";
+import Navbar from "../components/Navbar";
+import {
+  Star,
+  GitFork,
+  User,
+  Search,
+  Clock,
+  Code2
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEditorStore } from "../store/useEditorStore";
 
 const GalleryPage = () => {
   const [snippets, setSnippets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const { theme } = useEditorStore();
+  const isDark = theme === "vs-dark";
 
   useEffect(() => {
     const fetchSnippets = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/code');
+        const response = await fetch(
+          "http://localhost:5000/api/code"
+        );
+
         const data = await response.json();
         setSnippets(data);
       } catch (error) {
@@ -20,106 +34,189 @@ const GalleryPage = () => {
         setLoading(false);
       }
     };
+
     fetchSnippets();
   }, []);
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Just now';
+    if (!dateString) return "Just now";
+
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
-  const filteredSnippets = snippets.filter(s => 
-    s.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.author?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSnippets = useMemo(() => {
+    return snippets.filter(
+      (snippet) =>
+        snippet.title
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        snippet.author
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
+  }, [snippets, searchTerm]);
+
+  const tags = [
+    "Trending",
+    "Recent",
+    "HTML",
+    "JavaScript",
+    "Python",
+    "React",
+    "Full Stack"
+  ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div
+      className={`min-h-screen ${
+        isDark
+          ? "bg-black text-white"
+          : "bg-white text-black"
+      }`}
+    >
       <Navbar />
-      <div className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8">
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-5 mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+            <h1 className="text-4xl font-bold">
               Community Gallery
             </h1>
-            <p className="text-mutedForeground mt-2">Discover and fork snippets from developers worldwide.</p>
+
+            <p className="text-orange-500 mt-2">
+              Discover projects shared by developers
+            </p>
           </div>
-          
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-mutedForeground" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search snippets..." 
+
+          {/* Search */}
+          <div className="relative w-full md:w-96">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500"
+            />
+
+            <input
+              type="text"
+              placeholder="Search projects..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full md:w-80 bg-secondary/50 border border-glassBorder rounded-full pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-sans text-white"
+              onChange={(e) =>
+                setSearchTerm(e.target.value)
+              }
+              className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none ${
+                isDark
+                  ? "bg-zinc-900 border-orange-500/20 text-white"
+                  : "bg-orange-50 border-orange-200 text-black"
+              }`}
             />
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {['Trending', 'Recent', 'HTML/CSS', 'JavaScript', 'React', 'Fullstack'].map((tag, i) => (
-             <button key={i} className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${i === 0 ? 'bg-primary text-white' : 'bg-secondary/50 text-mutedForeground hover:text-white hover:bg-secondary'}`}>
-               {tag}
-             </button>
+        {/* Tags */}
+        <div className="flex gap-3 overflow-x-auto mb-8 pb-2">
+          {tags.map((tag, index) => (
+            <button
+              key={index}
+              className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium ${
+                index === 0
+                  ? "bg-orange-500 text-white"
+                  : isDark
+                  ? "bg-zinc-900 text-gray-300"
+                  : "bg-orange-50 text-gray-700"
+              }`}
+            >
+              {tag}
+            </button>
           ))}
         </div>
 
+        {/* Loading */}
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-orange-300 border-t-orange-500 rounded-full animate-spin"></div>
           </div>
         ) : filteredSnippets.length === 0 ? (
-          <div className="text-center py-20 text-mutedForeground">
-            No snippets found. Be the first to share one!
+          <div className="text-center py-20 text-gray-500">
+            No snippets found.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredSnippets.map((snippet) => (
-              <Link to={`/s/${snippet._id}`} key={snippet._id} className="glass-panel relative group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:border-primary/50 transition-all duration-300 block">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
-                <div className="p-5 border-b border-glassBorder space-y-4 relative z-10">
-                  <div className="flex justify-between items-start">
+              <Link
+                key={snippet._id}
+                to={`/s/${snippet._id}`}
+                className={`rounded-2xl border overflow-hidden shadow-lg hover:scale-[1.02] transition ${
+                  isDark
+                    ? "bg-zinc-900 border-orange-500/20"
+                    : "bg-white border-orange-200"
+                }`}
+              >
+                {/* Top */}
+                <div className="p-5 border-b border-orange-500/10">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-bold text-lg text-white mb-1 group-hover:text-primary transition-colors line-clamp-1">{snippet.title || 'Untitled Snippet'}</h3>
-                      <div className="flex items-center gap-2 text-xs text-mutedForeground">
-                        <User size={12} />
-                        {snippet.author || 'Anonymous'}
+                      <h3 className="font-bold text-lg">
+                        {snippet.title ||
+                          "Untitled Project"}
+                      </h3>
+
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                        <User size={14} />
+                        {snippet.author || "Anonymous"}
                       </div>
                     </div>
-                    <span className="px-2 py-1 bg-primary/10 border border-primary/20 rounded-md text-xs font-mono uppercase tracking-wider text-primary">
-                      {snippet.language || 'web'}
-                    </span>
+
+                    <div className="px-3 py-1 rounded-lg bg-orange-500 text-white text-xs font-medium">
+                      {snippet.language || "web"}
+                    </div>
                   </div>
-                  
-                  <div className="h-32 bg-black/50 rounded-lg border border-white/5 relative overflow-hidden flex items-center justify-center group-hover:border-primary/30 transition-colors">
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent z-10"></div>
-                    <p className="font-mono text-xs text-mutedForeground opacity-70 px-4 whitespace-pre-wrap line-clamp-5 text-left w-full h-full p-4 overflow-hidden">
-                      {typeof snippet.code === 'object' 
-                        ? (snippet.code.js || snippet.code.html || snippet.code.css || '// No code content') 
-                        : (snippet.code || '// No code content')}
-                    </p>
+
+                  {/* Code Preview */}
+                  <div
+                    className={`h-36 rounded-xl p-4 font-mono text-xs overflow-hidden ${
+                      isDark
+                        ? "bg-black text-green-400"
+                        : "bg-gray-100 text-black"
+                    }`}
+                  >
+                    {typeof snippet.code === "object"
+                      ? snippet.code.javascript ||
+                        snippet.code.html ||
+                        snippet.code.css ||
+                        "// No code"
+                      : snippet.code || "// No code"}
                   </div>
                 </div>
-                
-                <div className="px-5 py-3 flex items-center justify-between text-xs text-mutedForeground bg-black/40 rounded-b-2xl relative z-10">
-                  <span className="flex items-center gap-1.5"><Clock size={12}/> {formatDate(snippet.createdAt)}</span>
-                  <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-1.5 hover:text-white transition-colors" onClick={(e) => e.preventDefault()}>
-                      <Star size={14} /> {snippet.likes || 0}
-                    </button>
-                    <button className="flex items-center gap-1.5 hover:text-white transition-colors" onClick={(e) => e.preventDefault()}>
-                      <GitFork size={14} /> {snippet.forks || 0}
-                    </button>
+
+                {/* Footer */}
+                <div className="px-5 py-4 flex justify-between items-center text-sm">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Clock size={14} />
+                    {formatDate(snippet.createdAt)}
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-1 text-orange-500">
+                      <Star size={14} />
+                      {snippet.likes || 0}
+                    </div>
+
+                    <div className="flex items-center gap-1 text-orange-500">
+                      <GitFork size={14} />
+                      {snippet.forks || 0}
+                    </div>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
         )}
-
       </div>
     </div>
   );

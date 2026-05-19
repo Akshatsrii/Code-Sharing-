@@ -1,47 +1,126 @@
-import React from 'react';
-import { Share2, Play, Layout, Terminal, Grid3X3, Sparkles } from 'lucide-react';
-import { useEditorStore } from '../store/useEditorStore';
-import { useUiStore } from '../store/useUiStore';
-import { Link } from 'react-router-dom';
+import React from "react";
+import {
+  Share2,
+  Grid3X3,
+  Sparkles,
+  Sun,
+  Moon,
+  Code2
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+import { useEditorStore } from "../store/useEditorStore";
+import { useUiStore } from "../store/useUiStore";
 
 const Navbar = () => {
-  const { isShared, shareSnippet } = useEditorStore();
-  const { toggleAIPanel, setShareModalOpen } = useUiStore();
+  const { isShared, theme, setTheme } = useEditorStore();
+
+  const {
+    toggleAIPanel,
+    setShareModalOpen
+  } = useUiStore();
+
+  const isDark = theme === "vs-dark";
+
+  const handleThemeToggle = () => {
+    setTheme(isDark ? "light" : "vs-dark");
+  };
 
   return (
-    <nav className="h-16 border-b border-white/5 bg-black/20 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-50 shadow-sm shadow-black/20">
-      <div className="flex items-center gap-4">
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-[0_0_15px_rgba(59,130,246,0.5)] group-hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all">
-            N
+    <nav
+      className={`h-16 sticky top-0 z-50 px-6 flex items-center justify-between border-b ${
+        isDark
+          ? "bg-black border-zinc-800"
+          : "bg-white border-gray-200"
+      }`}
+    >
+      {/* Left */}
+      <div className="flex items-center gap-5">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center text-white">
+            <Code2 size={20} />
           </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">NoteCode</span>
+
+          <div>
+            <h1
+              className={`text-lg font-bold ${
+                isDark
+                  ? "text-white"
+                  : "text-black"
+              }`}
+            >
+              NoteCode
+            </h1>
+
+            <p className="text-xs text-orange-500">
+              Online Code Editor
+            </p>
+          </div>
         </Link>
-        <div className="h-6 w-px bg-glassBorder mx-2"></div>
-        <Link to="/gallery" className="flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors font-medium">
+
+        {/* Gallery */}
+        <Link
+          to="/gallery"
+          className={`flex items-center gap-2 text-sm ${
+            isDark
+              ? "text-gray-300 hover:text-orange-400"
+              : "text-gray-700 hover:text-orange-500"
+          }`}
+        >
           <Grid3X3 size={16} />
           Gallery
         </Link>
       </div>
 
+      {/* Right */}
       <div className="flex items-center gap-3">
-        <button 
+        {/* Theme Toggle (ONLY ONE) */}
+        <button
+          onClick={handleThemeToggle}
+          className={`p-2 rounded-xl ${
+            isDark
+              ? "bg-zinc-900 text-orange-400"
+              : "bg-orange-50 text-orange-600"
+          }`}
+        >
+          {isDark ? (
+            <Sun size={18} />
+          ) : (
+            <Moon size={18} />
+          )}
+        </button>
+
+        {/* AI Assistant */}
+        <button
           onClick={toggleAIPanel}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-accent bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all shine-effect disabled:opacity-50"
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 ${
+            isDark
+              ? "bg-zinc-900 text-orange-400"
+              : "bg-orange-50 text-orange-600"
+          }`}
         >
           <Sparkles size={16} />
           AI Assistant
         </button>
-        
-        <div className="h-6 w-px bg-glassBorder mx-1"></div>
-        
-        <button 
-          onClick={() => setShareModalOpen(true)}
+
+        {/* Share */}
+        <button
+          onClick={() =>
+            setShareModalOpen(true)
+          }
           disabled={isShared}
-          className="glass-button flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium bg-primary text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 text-white ${
+            isShared
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
+          }`}
         >
           <Share2 size={16} />
-          {isShared ? 'Shared!' : 'Share'}
+          {isShared ? "Shared" : "Share"}
         </button>
       </div>
     </nav>

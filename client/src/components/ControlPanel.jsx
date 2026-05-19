@@ -1,77 +1,155 @@
-import React from 'react';
-import { useEditorStore } from '../store/useEditorStore';
-import { useUiStore } from '../store/useUiStore';
-import { Layout, Columns, RefreshCcw } from 'lucide-react';
+import React from "react";
+import {
+  Layout,
+  Columns,
+  RefreshCcw,
+  Code2
+} from "lucide-react";
+
+import { useEditorStore } from "../store/useEditorStore";
+import { useUiStore } from "../store/useUiStore";
 
 const ControlPanel = () => {
-  const { language, setLanguage, theme, setTheme, resetSnippet } = useEditorStore();
-  const { setViewMode, viewMode } = useUiStore();
+  const {
+    language,
+    setLanguage,
+    theme,
+    resetSnippet
+  } = useEditorStore();
+
+  const {
+    setViewMode,
+    viewMode
+  } = useUiStore();
 
   const languages = [
-    { id: 'html', name: 'HTML' },
-    { id: 'css', name: 'CSS' },
-    { id: 'js', name: 'JavaScript' },
-    { id: 'typescript', name: 'TypeScript' },
-    { id: 'python', name: 'Python' },
-    { id: 'cpp', name: 'C++' },
-    { id: 'json', name: 'JSON' },
-    { id: 'rust', name: 'Rust' },
+    { id: "html", name: "HTML" },
+    { id: "css", name: "CSS" },
+    { id: "javascript", name: "JavaScript" },
+    { id: "typescript", name: "TypeScript" },
+    { id: "python", name: "Python" },
+    { id: "cpp", name: "C++" },
+    { id: "java", name: "Java" },
+    { id: "json", name: "JSON" },
+    { id: "rust", name: "Rust" }
   ];
 
+  const isDark = theme === "vs-dark";
+
   return (
-    <div className="h-12 border-b border-glassBorder bg-secondary/20 flex items-center justify-between px-4">
-      <div className="flex items-center gap-4 text-sm">
-        <select 
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="bg-black/40 border border-glassBorder rounded-md px-2 py-1 outline-none text-white cursor-pointer focus:border-primary/50 transition-colors"
-        >
-          {languages.map(l => (
-            <option key={l.id} value={l.id} className="bg-background">{l.name}</option>
-          ))}
-        </select>
-
-        <div className="h-4 w-px bg-glassBorder"></div>
-
-        <select 
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          className="bg-black/40 border border-glassBorder rounded-md px-2 py-1 outline-none text-white cursor-pointer focus:border-primary/50 transition-colors"
-        >
-          <option value="vs-dark" className="bg-background">VS Dark</option>
-          <option value="light" className="bg-background">Light</option>
-        </select>
+    <div
+      className={`h-16 px-6 flex items-center justify-between border-b ${
+        isDark
+          ? "bg-black border-zinc-800"
+          : "bg-white border-gray-200"
+      }`}
+    >
+      {/* Left Section */}
+      <div className="flex items-center gap-4">
         
-        <button 
+        {/* Language Dropdown */}
+        <div className="relative">
+          <Code2
+            size={16}
+            className="absolute left-3 top-3 text-orange-500"
+          />
+
+          <select
+            value={language}
+            onChange={(e) =>
+              setLanguage(e.target.value)
+            }
+            className={`pl-10 pr-4 py-2 rounded-xl border outline-none text-sm font-medium ${
+              isDark
+                ? "bg-zinc-900 text-white border-zinc-700"
+                : "bg-gray-50 text-black border-gray-200"
+            }`}
+          >
+            {languages.map((lang) => (
+              <option
+                key={lang.id}
+                value={lang.id}
+              >
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Reset Button */}
+        <button
           onClick={resetSnippet}
-          className="flex items-center gap-1.5 text-mutedForeground hover:text-white px-2 py-1 rounded-md hover:bg-black/20 transition-colors ml-2"
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm ${
+            isDark
+              ? "bg-zinc-900 text-white hover:bg-zinc-800"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
         >
-          <RefreshCcw size={14} />
+          <RefreshCcw size={16} />
           Reset
         </button>
       </div>
 
-      <div className="flex items-center gap-1 bg-black/20 p-1 rounded-lg border border-glassBorder">
-        <button 
-          onClick={() => setViewMode('editor')}
-          className={`px-3 py-1 rounded-md flex items-center gap-2 text-xs transition-colors ${viewMode === 'editor' ? 'bg-black/60 shadow-inner border border-white/5 text-primary font-medium' : 'text-mutedForeground hover:text-white'}`}
+      {/* Right Section */}
+      <div
+        className={`flex items-center p-1 rounded-xl ${
+          isDark
+            ? "bg-zinc-900"
+            : "bg-gray-100"
+        }`}
+      >
+        {/* Editor */}
+        <button
+          onClick={() =>
+            setViewMode("editor")
+          }
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm ${
+            viewMode === "editor"
+              ? "bg-orange-500 text-white"
+              : isDark
+              ? "text-gray-300"
+              : "text-gray-700"
+          }`}
         >
-          <Layout size={14} />
+          <Layout size={16} />
           Editor
         </button>
-        <button 
-          onClick={() => setViewMode('split')}
-          className={`px-3 py-1 rounded-md flex items-center gap-2 text-xs transition-colors ${viewMode === 'split' ? 'bg-black/60 shadow-inner border border-white/5 text-primary font-medium' : 'text-mutedForeground hover:text-white'}`}
+
+        {/* Split */}
+        <button
+          onClick={() =>
+            setViewMode("split")
+          }
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm ${
+            viewMode === "split"
+              ? "bg-orange-500 text-white"
+              : isDark
+              ? "text-gray-300"
+              : "text-gray-700"
+          }`}
         >
-          <Columns size={14} />
+          <Columns size={16} />
           Split
         </button>
-        <button 
-          onClick={() => setViewMode('preview')}
-          className={`px-3 py-1 rounded-md flex items-center gap-2 text-xs transition-colors ${viewMode === 'preview' ? 'bg-black/60 shadow-inner border border-white/5 text-primary font-medium' : 'text-mutedForeground hover:text-white'}`}
+
+        {/* Output */}
+        <button
+          onClick={() =>
+            setViewMode("preview")
+          }
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 text-sm ${
+            viewMode === "preview"
+              ? "bg-orange-500 text-white"
+              : isDark
+              ? "text-gray-300"
+              : "text-gray-700"
+          }`}
         >
-          <Layout size={14} className="rotate-90" />
-          Preview
+          <Layout
+            size={16}
+            className="rotate-90"
+          />
+          Output
         </button>
       </div>
     </div>

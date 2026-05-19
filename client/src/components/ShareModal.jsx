@@ -1,70 +1,94 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useUiStore } from '../store/useUiStore';
-import { useEditorStore } from '../store/useEditorStore';
-import { X, Copy, Check, Link as LinkIcon } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Copy,
+  Check,
+  Link as LinkIcon,
+  Share2
+} from "lucide-react";
+
+import { useUiStore } from "../store/useUiStore";
+import { useEditorStore } from "../store/useEditorStore";
 
 const ShareModal = () => {
-  const { isShareModalOpen, setShareModalOpen, addToast } = useUiStore();
-  const { code } = useEditorStore();
+  const {
+    isShareModalOpen,
+    setShareModalOpen,
+    addToast
+  } = useUiStore();
+
+  const {
+    code,
+    theme
+  } = useEditorStore();
 
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shareData, setShareData] = useState(null);
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+
+  const isDark = theme === "vs-dark";
 
   const handleShare = async () => {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/code/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          code: code, 
-          language: "workspace",
-          title: title || "Untitled Snippet",
-          author: author || "Anonymous"
-        })
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/code/save",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            code,
+            language: "workspace",
+            title: title || "Untitled Snippet",
+            author: author || "Anonymous",
+          }),
+        }
+      );
 
       const data = await response.json();
 
-      const url = `http://localhost:5173/s/${data._id}`;
+      const shareUrl = `http://localhost:5173/s/${data._id}`;
 
       setShareData({
-        url,
-        id: data._id
+        url: shareUrl,
+        id: data._id,
       });
 
       addToast("Snippet shared successfully!", "success");
     } catch (error) {
       console.error(error);
-      addToast("Error sharing snippet", "error");
+      addToast("Failed to share snippet", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (!shareData) return;
 
-    navigator.clipboard.writeText(shareData.url);
-    setCopied(true);
-    addToast("Link copied!", "info");
+    await navigator.clipboard.writeText(shareData.url);
 
-    setTimeout(() => setCopied(false), 2000);
+    setCopied(true);
+    addToast("Link copied successfully!", "success");
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
-  const resetModal = () => {
+  const closeModal = () => {
     setShareModalOpen(false);
+
     setTimeout(() => {
       setShareData(null);
-      setTitle('');
-      setAuthor('');
+      setTitle("");
+      setAuthor("");
       setCopied(false);
     }, 300);
   };
@@ -73,91 +97,159 @@ const ShareModal = () => {
     <AnimatePresence>
       {isShareModalOpen && (
         <>
+          {/* Overlay */}
           <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-            onClick={resetModal}
+            onClick={closeModal}
           />
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }}
-            animate={{ opacity: 1, scale: 1, y: '-50%', x: '-50%' }}
-            exit={{ opacity: 0, scale: 0.95, y: '-50%', x: '-50%' }}
-            className="fixed top-1/2 left-1/2 glass-panel p-6 rounded-xl w-[90vw] max-w-[400px] text-foreground z-[101] shadow-2xl"
+          {/* Modal */}
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.9,
+              x: "-50%",
+              y: "-50%",
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              x: "-50%",
+              y: "-50%",
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.9,
+              x: "-50%",
+              y: "-50%",
+            }}
+            className={`fixed top-1/2 left-1/2 z-[101] w-[90%] max-w-md rounded-2xl shadow-2xl border p-6 ${
+              isDark
+                ? "bg-black border-orange-500/20"
+                : "bg-white border-orange-200"
+            }`}
           >
-            
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">Share Workspace</h2>
-              <button onClick={resetModal} className="text-mutedForeground hover:text-white transition-colors">
-                <X size={20} />
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Share2 className="text-orange-500" size={20} />
+                <h2
+                  className={`text-xl font-bold ${
+                    isDark ? "text-white" : "text-black"
+                  }`}
+                >
+                  Share Code
+                </h2>
+              </div>
+
+              <button
+                onClick={closeModal}
+                className={`p-2 rounded-lg ${
+                  isDark
+                    ? "hover:bg-zinc-900 text-white"
+                    : "hover:bg-orange-50 text-black"
+                }`}
+              >
+                <X size={18} />
               </button>
             </div>
 
             {!shareData ? (
               <div className="space-y-4">
+                {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium text-mutedForeground mb-1.5">Snippet Title</label>
-                  <input 
-                    type="text" 
+                  <label className="text-sm font-medium text-orange-500">
+                    Project Title
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Enter project title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Awesome Glassmorphism" 
-                    className="w-full bg-secondary/50 border border-glassBorder rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-sans text-white"
+                    className={`w-full mt-2 px-4 py-3 rounded-xl border outline-none ${
+                      isDark
+                        ? "bg-zinc-900 text-white border-orange-500/20"
+                        : "bg-orange-50 text-black border-orange-200"
+                    }`}
                   />
                 </div>
+
+                {/* Author */}
                 <div>
-                  <label className="block text-sm font-medium text-mutedForeground mb-1.5">Author Name</label>
-                  <input 
-                    type="text" 
+                  <label className="text-sm font-medium text-orange-500">
+                    Author Name
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Enter author name"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
-                    placeholder="e.g. John Doe" 
-                    className="w-full bg-secondary/50 border border-glassBorder rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all font-sans text-white"
+                    className={`w-full mt-2 px-4 py-3 rounded-xl border outline-none ${
+                      isDark
+                        ? "bg-zinc-900 text-white border-orange-500/20"
+                        : "bg-orange-50 text-black border-orange-200"
+                    }`}
                   />
                 </div>
-                
-                <button 
-                  onClick={handleShare} 
+
+                {/* Share Button */}
+                <button
+                  onClick={handleShare}
                   disabled={loading}
-                  className="w-full glass-button mt-4 py-2.5 rounded-lg font-medium text-white bg-primary flex items-center justify-center gap-2"
+                  className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
                     <>
-                      <LinkIcon size={18} /> Generate Share Link
+                      <LinkIcon size={18} />
+                      Generate Link
                     </>
                   )}
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm text-center mb-4">
-                  Successfully generated share link!
+                {/* Success */}
+                <div className="bg-green-100 text-green-600 p-3 rounded-xl text-center text-sm font-medium">
+                  Share link generated successfully!
                 </div>
-                
+
+                {/* Link Copy */}
                 <div className="flex gap-2">
-                  <input 
-                    value={shareData.url} 
-                    readOnly 
-                    className="flex-1 bg-secondary/50 border border-glassBorder rounded-lg px-4 py-2.5 text-sm font-mono text-mutedForeground focus:outline-none"
+                  <input
+                    readOnly
+                    value={shareData.url}
+                    className={`flex-1 px-4 py-3 rounded-xl border text-sm ${
+                      isDark
+                        ? "bg-zinc-900 text-white border-orange-500/20"
+                        : "bg-orange-50 text-black border-orange-200"
+                    }`}
                   />
-                  <button 
+
+                  <button
                     onClick={copyToClipboard}
-                    className="p-2.5 rounded-lg bg-secondary/80 hover:bg-secondary border border-glassBorder transition-colors text-white"
-                    title="Copy to clipboard"
+                    className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-xl"
                   >
-                    {copied ? <Check size={18} className="text-green-400" /> : <Copy size={18} />}
+                    {copied ? (
+                      <Check size={18} />
+                    ) : (
+                      <Copy size={18} />
+                    )}
                   </button>
                 </div>
-                
-                <div className="text-center mt-6">
-                  <button onClick={resetModal} className="text-sm text-mutedForeground hover:text-white transition-colors">
-                    Close
-                  </button>
-                </div>
+
+                <button
+                  onClick={closeModal}
+                  className="w-full py-3 rounded-xl border border-orange-300 text-orange-500 hover:bg-orange-50 transition"
+                >
+                  Close
+                </button>
               </div>
             )}
           </motion.div>
